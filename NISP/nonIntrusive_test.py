@@ -10,15 +10,7 @@ from truncatedKL import truncatedKL
 from Galerkin1DElliptic import Galerkin1DElliptic
 from hermPoly import pherm
 from multiIndex import multiIndex
-from solEllipticEq import solution 
-
-# # some_file.py
-# import sys
-# sys.path.insert(0, '/Users/joaoreis/Documents/Codes/Python Notebooks/Galerkin Method/Routines')
-
-# from massMatrix import galerkinMassMatrix
-# from galerkinSourceVector import galerkinSource
-# from galerkin1D import galerkinSolution
+from solEllipticEq import solution
 
 
 def nisp(Nel, f_source, alpha, beta, u_alpha, u_beta, Nkl, No, mu, sigma, l, M):
@@ -53,10 +45,6 @@ def nisp(Nel, f_source, alpha, beta, u_alpha, u_beta, Nkl, No, mu, sigma, l, M):
 
 	print("Computing solution samples")
 	solution_samples = np.zeros((Nq,Nel))
-
-	# print(".   building source")
-	# F = galerkinSource(Nel, f_source, alpha, beta)
-
 
 
 	print(".   building mass matrices and solutions")
@@ -113,6 +101,13 @@ def nisp(Nel, f_source, alpha, beta, u_alpha, u_beta, Nkl, No, mu, sigma, l, M):
 
 		uCoeff[:,s] = integral
 
+	variance = np.zeros(Nel)
+	for s in range(1,P+1):
+		variance[:] += uCoeff[:,s]**2 # /(2*s+1)
+	for s in range(Nel):
+		print("Mean: " + str(uCoeff[s,0]) + "  and Variance:  " + str(variance[s]) )
+
+
 	###############################################################################
 
 
@@ -124,8 +119,29 @@ def nisp(Nel, f_source, alpha, beta, u_alpha, u_beta, Nkl, No, mu, sigma, l, M):
 	u0 = u_alpha
 	uN = u_beta
 	exactSolution_samples = np.zeros((Nel, M))
+
+	#for m in range(M):
+	#	exactSolution_samples[:,m] = solution(f_source, Nel, alpha, beta, u0, uN, xi_normal[:,m], mu, sigma, l)
+
+
+	k_normal = truncatedKL(Nel, xi_normal, mu, Eign)
 	for m in range(M):
-		exactSolution_samples[:,m] = solution(f_source, Nel, alpha, beta, u0, uN, xi_normal[:,m], mu, sigma, l)
+		exactSolution_samples[:,m] = Galerkin1DElliptic(Nel, f_source, alpha, beta, u_alpha, u_beta, k_normal[:,m])
+
+
+	mean = np.zeros(Nel)
+	variance = np.zeros(Nel)
+	for m in range(M):
+                mean[:] +=  exactSolution_samples[:,m]
+	mean[:] /= M
+	
+	for m in range(M):
+		variance[:] += (exactSolution_samples[:,m] - mean[:])**2
+	variance[:] /= M
+
+	for s in range(Nel):
+		print("Mean: " + str(mean[s]) + "  and Variance:  " + str(variance[s]) )
+
 
 
 	#computing hermite polynomials for new samples

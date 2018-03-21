@@ -17,18 +17,18 @@ from Galerkin1DElliptic import Galerkin1DElliptic
 from hermPoly import pherm
 from multiIndex import multiIndex
 
-Nel = 20
+Nel = 10
 f_source = lambda x: x
 alpha = 0
 beta = 1
 u_alpha = 0
 u_beta = 0
-Nkl = 10
-No = 2
+Nkl = 1
+No = 10
 mu = np.ones(Nel)
 sigma = 0.1 
 l = 0.1
-M = 5000
+M = 100000
 
 # index = multiIndex(Nkl, No)
 
